@@ -43,7 +43,7 @@ const createGestureRecognizer = async () => {
   });
   demosSection.classList.remove("invisible");
 };
-createGestureRecognizer();
+await createGestureRecognizer();
 
 /********************************************************************
 // Demo 2: Continuously grab image from webcam stream and detect it.
@@ -157,3 +157,25 @@ async function predictWebcam() {
     window.requestAnimationFrame(predictWebcam);
   }
 }
+
+/********************************************************************
+// Demo 3: From video
+********************************************************************/
+async function predictRecordedVideo() {
+  const video = document.getElementById("recorded_video");
+  console.log(video.currentTime)
+  let nowInMs = Date.now();
+
+  if (video.currentTime !== lastVideoTime) {
+    await gestureRecognizer.setOptions({ runningMode: "VIDEO" });
+    const gestureRecognitionResult = gestureRecognizer.recognizeForVideo(video, nowInMs);
+    console.log(gestureRecognitionResult);
+    lastVideoTime = video.currentTime;
+  }
+
+  requestAnimationFrame(() => {
+    renderLoop();
+  });
+}
+
+predictRecordedVideo()
