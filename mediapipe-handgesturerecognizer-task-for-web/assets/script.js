@@ -161,6 +161,8 @@ async function predictWebcam() {
 /********************************************************************
 // Demo 3: From video
 ********************************************************************/
+// https://stackoverflow.com/questions/43007634/javascript-how-to-extract-frame-from-video
+
 async function predictRecordedVideo() {
   await gestureRecognizer.setOptions({ runningMode: "VIDEO" });
 
