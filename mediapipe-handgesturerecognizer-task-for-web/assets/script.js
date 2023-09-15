@@ -162,20 +162,45 @@ async function predictWebcam() {
 // Demo 3: From video
 ********************************************************************/
 async function predictRecordedVideo() {
-  const video = document.getElementById("recorded_video");
-  console.log(video.currentTime)
-  let nowInMs = Date.now();
+  await gestureRecognizer.setOptions({ runningMode: "VIDEO" });
 
-  if (video.currentTime !== lastVideoTime) {
-    await gestureRecognizer.setOptions({ runningMode: "VIDEO" });
-    const gestureRecognitionResult = gestureRecognizer.recognizeForVideo(video, nowInMs);
-    console.log(gestureRecognitionResult);
-    lastVideoTime = video.currentTime;
+  var video = document.createElement("video");
+
+  var playSelectedFile = function(event) {
+    var file = this.files[0];
+    var fileURL = URL.createObjectURL(file);
+    video.src = fileURL;
+  }
+  
+  var input = document.querySelector('input');
+  input.addEventListener('change', playSelectedFile, false);
+
+  var timeStampMs = 0;
+
+  function makePrediction() {
+    if (video.currentTime >= video.duration) return;
+    const gestureRecognitionResult = gestureRecognizer.recognizeForVideo(video, timeStampMs);
+    if (gestureRecognitionResult.gestures.length > 0) {
+      console.log(gestureRecognitionResult.gestures[0][0]['categoryName'])
+    }
+    timeStampMs += 1000 / fps;
+    video.currentTime += 1 / fps;
   }
 
-  requestAnimationFrame(() => {
-    renderLoop();
-  });
+  video.addEventListener('loadeddata', function() {
+    console.log('loadeddata')
+    makePrediction()
+  }, true);
+  
+  video.addEventListener('seeked', function() {
+    console.log('seeked')
+    makePrediction()
+  }, true);
+
+  const fps = 30;
+  var canvas = document.getElementById("prevImgCanvas");
+  canvas.width = videoWidth;
+  canvas.height = videoHeight;
 }
 
-predictRecordedVideo()
+await predictRecordedVideo()
